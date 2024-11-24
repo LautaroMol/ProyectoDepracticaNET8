@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35514.174
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProyectoDepractica.Server", "ProyectoDepractica.Server\ProyectoDepractica.Server.csproj", "{33B5D008-2858-448E-A411-274EF55C98BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProyectoDePractica.BD", "ProyectoDePractica.BD\ProyectoDePractica.BD.csproj", "{B77F5C96-AC4B-4D58-BB2E-8D5DA003F030}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33B5D008-2858-448E-A411-274EF55C98BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33B5D008-2858-448E-A411-274EF55C98BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33B5D008-2858-448E-A411-274EF55C98BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33B5D008-2858-448E-A411-274EF55C98BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B77F5C96-AC4B-4D58-BB2E-8D5DA003F030}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B77F5C96-AC4B-4D58-BB2E-8D5DA003F030}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B77F5C96-AC4B-4D58-BB2E-8D5DA003F030}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B77F5C96-AC4B-4D58-BB2E-8D5DA003F030}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
