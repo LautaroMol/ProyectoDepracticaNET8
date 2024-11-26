@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProyectoDePractica.BD.Data;
 
@@ -11,9 +12,11 @@ using ProyectoDePractica.BD.Data;
 namespace ProyectoDePractica.BD.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20241124235516_entidades")]
+    partial class entidades
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -250,7 +253,7 @@ namespace ProyectoDePractica.BD.Migrations
                         .HasForeignKey("PersonaId");
 
                     b.HasOne("ProyectoDePractica.BD.Data.Entity.TDocumento", "TDocumento")
-                        .WithMany()
+                        .WithMany("Personas")
                         .HasForeignKey("TDocumentoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -283,6 +286,11 @@ namespace ProyectoDePractica.BD.Migrations
                 });
 
             modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.Persona", b =>
+                {
+                    b.Navigation("Personas");
+                });
+
+            modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.TDocumento", b =>
                 {
                     b.Navigation("Personas");
                 });

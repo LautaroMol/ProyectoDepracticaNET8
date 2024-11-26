@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
@@ -17,6 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ProyectoDePractica.BD\ProyectoDePractica.BD.csproj" />
+    <ProjectReference Include="..\ProyectoDePractica.Client\ProyectoDePractica.Client.csproj" />
+    <ProjectReference Include="..\ProyectoDePractica.Shared\ProyectoDePractica.Shared.csproj" />
   </ItemGroup>
 
 </Project>
