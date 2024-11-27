@@ -1,0 +1,26 @@
+﻿@using MudBlazor
+<MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="HandleClick">Delete</MudButton>
+
+<MudChip T="string">@state</MudChip>
+
+@code
+{
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public EventCallback<string> OnButtonClick { get; set; }
+
+    string state = "Message box hasn't been opened yet";
+
+
+    public async void HandleClick()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure you want to delete?" ,
+            yesText:"Confirm!", cancelText:"Cancel");
+        state = result == null ? "Canceled" : "Deleted!";
+        StateHasChanged();
+        if(OnButtonClick.HasDelegate){
+            await OnButtonClick.InvokeAsync(state);
+        }
+    }
+}

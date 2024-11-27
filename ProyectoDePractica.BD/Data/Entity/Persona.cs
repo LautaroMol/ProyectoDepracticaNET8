@@ -25,6 +25,6 @@ namespace ProyectoDePractica.BD.Data.Entity
         [Required(ErrorMessage = "El tipo de documento es obligatorio.")]
         public int TDocumentoId { get; set; }
         public TDocumento TDocumento { get; set; }
-        public List<Persona> Personas { get; set; }
+        public List<Persona> Personas { get; set; } = new List<Persona>();
     }
 }

@@ -1,0 +1,106 @@
+﻿@page "/TDocumentos/editar/{tDocumentoId:int}"
+@inject IHttpService http
+@inject NavigationManager navigationManager
+
+<h1>Editar tipo de documento N°: @tDocumentoId</h1>
+<br />
+
+
+<EditForm Model="@tdocumento" OnValidSubmit="Grabar">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Code of the Type of document" HelperText="Max 4 characters"
+                    @bind-Value="@tdocumento.Codigo" For="@(()=>tdocumento.Codigo)" MaxLength="4">
+                    </MudTextField >
+                    <MudTextField Label="Name of the type of document" HelperText="Max 150 characters"
+                    @bind-Value="@tdocumento.Nombre" For="@(()=>tdocumento.Nombre)" MaxLength="150">
+                    </MudTextField>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+                @if (success)
+                {
+                    <MudText Color="Color.Success">Success</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Info Error: @msg
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    [Parameter] public int tDocumentoId { get; set; }
+    bool success;
+    string msg = "";
+    bool flag;
+    
+
+    private TDocumento tdocumento = new TDocumento();
+
+
+    protected override async Task OnInitializedAsync(){
+        await base.OnInitializedAsync();
+        await Show();
+    }
+
+    public async Task Show(){
+        var response = await http.Get<TDocumento>($"api/TDocumentos/SelectById/{tDocumentoId}");
+        if(!response.Error){
+            tdocumento = response.Response;
+        }else{
+            navigationManager.NavigateTo("/TDocumentos");
+        }
+    }
+
+    private async Task Grabar()
+    {
+
+        flag = true;
+        var resp = await http.Get<List<TDocumento>>("api/TDocumentos");
+        var list = resp.Response;
+        foreach (TDocumento doc in list)
+        {
+            if (doc.Codigo == tdocumento.Codigo)
+            {
+                msg = $"El codigo {doc.Codigo} ya esta siendo usado";
+                flag = false;
+                return;
+            }
+        }
+
+        if (flag)
+        {
+            var httpresponse = await http.Put<TDocumento>($"api/TDocumentos/{tDocumentoId}", tdocumento);
+            if (httpresponse.Error)
+            {
+                var body = httpresponse.HttpResponseMessage;
+            }
+            navigationManager.NavigateTo("/TDocumentos");
+        }
+
+    }
+    private Task Cancelar()
+    {
+        throw new NotImplementedException();
+    }
+
+}

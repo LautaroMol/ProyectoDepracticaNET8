@@ -1,57 +1,63 @@
-﻿@page "/api/TDocumentos"
+﻿@using System.Net.Http.Json
+@inject HttpClient httpClient
+@page "/TDocumentos"
 @inject IHttpService http
+@using MudBlazor
 
 
 <h3>Lista de tipos de documentos</h3>
+<br/>
+<MudButton Variant="Variant.Filled" href="/TDocumentos/crear">Agregar Tipo de Documento</MudButton>
+<br />
 
-<table class="table table-striped">
+<MudTable Items="@listaDocumentos" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
+    <ToolBarContent>
+        <MudText>Lista de tipos de documentos</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Codigo</MudTh>
+        <MudTh>Nombre</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Codigo</MudTd>
+        <MudTd>@context.Nombre</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"TDocumentos/editar/{context.Id}")">
+                Editar
+            </MudButton>
+        </MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
+            @onclick = "()=> delete(context)">
+                Borrar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
 
-    <tr>
-        <th>Codigo</th>
-        <th>Nombre</th>
-    </tr>
-    @if (Msg == "")
-    {
-        @if (listaDocumentos == null)
-        {
-            <p>Buscando....</p>
-        }
-        else if (listaDocumentos.Count == 0)
-        {
-            <p>No existen tipos de documentos</p>
-        }
-        else
-        {
-            @foreach (var item in listaDocumentos)
-            {
-                <tr>
-                    <td>@item.Codigo</td>
-                    <td>@item.Nombre</td>
-                    <td>
-                        <a class="btn btn-primary"
-                           href="api/TDocumentos/editar/@item.Id">
-                            Editar
-                        </a>
-                    </td>
-                    <td>
-                        <button class="btn btn-danger">
-                            Borrar
-                        </button>
-                    </td>
-                </tr>
-            }
-        }
-    }
-    else
-    {
-        <p> Error: @Msg</p>
-    }
+</MudTable>
 
-</table>
+
+
 
 @code {
+
+    private bool hover = true;
+    private bool bordered = true;
     List<TDocumento> listaDocumentos = new List<TDocumento>();
     public string Msg = "";
+
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public EventCallback<string> OnButtonClick { get; set; }
+    private Confirmation confirmation;
+    private TDocumento entityToDelete;
+
+
+    public string state = "Message box hasn't been opened yet";
+
+
     protected override async Task OnInitializedAsync(){
         await base.OnInitializedAsync();
         await Leer();
@@ -62,7 +68,30 @@
         if(!respuesta.Error){
             listaDocumentos = respuesta.Response;
         }else{
-            Msg = "Error";
+            Msg = await respuesta.GetError();
         }
     }
+
+    private async Task delete(TDocumento entity){
+        bool? result = await DialogService.ShowMessageBox(
+            $"Warning you gonna delete the following Type of document {entity.Nombre}",
+            "Are you sure you want to delete?",
+            yesText: "Confirm!", cancelText: "Cancel");
+        state = result == null ? "Canceled" : "Deleted!";
+        StateHasChanged();
+        if (OnButtonClick.HasDelegate)
+        {
+            await OnButtonClick.InvokeAsync(state);
+        }
+
+        if (state == "Deleted!")
+        {
+            Console.WriteLine("camino de borrar");
+            Console.WriteLine($"{state}");
+        }else{ Console.WriteLine("se cancelo"); 
+            Console.WriteLine($"{state}");
+        }
+    }
+
+
 }

@@ -49,7 +49,7 @@ namespace ProyectoDepractica.Server.Controllers
         {
             try
             {
-                return await _repositorio.Insert(entidad); ;
+                return await _repositorio.Insert(entidad);
             }catch (Exception e)
             {
                 return BadRequest(e.Message);
@@ -57,7 +57,7 @@ namespace ProyectoDepractica.Server.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(int id,[FromBody] TDocumento entidad)
+        public async Task<ActionResult<bool>> Put(int id,[FromBody] TDocumento entidad)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace ProyectoDepractica.Server.Controllers
                     return BadRequest("No se pudo actualizar");
                 }
 
-                return Ok();
+                return enc;
             }
  
             catch (Exception e) { return BadRequest(e.Message); }
