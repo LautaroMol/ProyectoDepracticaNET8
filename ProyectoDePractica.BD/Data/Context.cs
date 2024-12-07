@@ -10,7 +10,7 @@ namespace ProyectoDePractica.BD.Data
 {
     public class Context : DbContext
     {
-        public DbSet<Especialidad> Especialidadess {  get; set; }
+        public DbSet<Especialidad> Especialidades {  get; set; }
         public DbSet<Matricula> Matriculas { get; set; }
         public DbSet<Titulo> Titulos {  get; set; }
         public DbSet<Persona> Personas { get; set; }

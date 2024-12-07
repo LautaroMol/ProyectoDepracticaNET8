@@ -53,7 +53,7 @@ namespace ProyectoDePractica.BD.Migrations
                     b.HasIndex(new[] { "Codigo" }, "Especialidad_UQ")
                         .IsUnique();
 
-                    b.ToTable("Especialidadess");
+                    b.ToTable("Especialidades");
                 });
 
             modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.Matricula", b =>
@@ -149,11 +149,16 @@ namespace ProyectoDePractica.BD.Migrations
                     b.Property<int>("TDocumentoId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TituloId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PersonaId");
 
                     b.HasIndex("TDocumentoId");
+
+                    b.HasIndex("TituloId");
 
                     b.ToTable("Profesiones");
                 });
@@ -184,7 +189,7 @@ namespace ProyectoDePractica.BD.Migrations
                     b.ToTable("TDocumentos");
                 });
 
-            modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.TDocumento", b =>
+            modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.Titulo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -210,7 +215,7 @@ namespace ProyectoDePractica.BD.Migrations
                     b.HasIndex(new[] { "Codigo" }, "TDocumento_UQ")
                         .IsUnique();
 
-                    b.ToTable("TDocumentos");
+                    b.ToTable("Titulos");
                 });
 
             modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.Especialidad", b =>
@@ -267,10 +272,14 @@ namespace ProyectoDePractica.BD.Migrations
                         .IsRequired();
 
                     b.HasOne("ProyectoDePractica.BD.Data.Entity.TDocumento", "TDocumento")
-                        .WithMany("Profesiones")
+                        .WithMany()
                         .HasForeignKey("TDocumentoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ProyectoDePractica.BD.Data.Entity.Titulo", null)
+                        .WithMany("Profesiones")
+                        .HasForeignKey("TituloId");
 
                     b.Navigation("Persona");
 
@@ -287,7 +296,7 @@ namespace ProyectoDePractica.BD.Migrations
                     b.Navigation("Personas");
                 });
 
-            modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.TDocumento", b =>
+            modelBuilder.Entity("ProyectoDePractica.BD.Data.Entity.Titulo", b =>
                 {
                     b.Navigation("Profesiones");
                 });

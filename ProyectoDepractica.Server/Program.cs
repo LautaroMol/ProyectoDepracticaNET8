@@ -20,6 +20,8 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddScoped<ITituloRepositorio, TituloRepositorio>();
 builder.Services.AddScoped<ITDocumentoRepositorio, TDocumentoRepositorio>();
+builder.Services.AddScoped<IEspecialidadRepositorio, EspecialidadRepositorio>();
+builder.Services.AddScoped<IMatriculaRepositorio, MatriculaRepositorio>();
 
 var app = builder.Build();
 

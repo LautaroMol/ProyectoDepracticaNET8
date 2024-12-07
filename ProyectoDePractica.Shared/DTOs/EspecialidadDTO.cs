@@ -1,16 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProyectoDePractica.BD.Data.Entity
+namespace ProyectoDePractica.Shared.DTOs
 {
-    [Index(nameof(Codigo), Name = "Especialidad_UQ", IsUnique = true)]
-    public class Especialidad : EntityBase
+    public class EspecialidadDTO
     {
         [Required(ErrorMessage = "El código de la especialidad es obligatorio.")]
         [MaxLength(4, ErrorMessage = "Máximo número de caracteres {1}.")]
@@ -20,9 +17,5 @@ namespace ProyectoDePractica.BD.Data.Entity
         [MaxLength(100, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string Nombre { get; set; }
         public int TDocumentoId { get; set; }
-        public TDocumento TDocumento { get; set; }
-
-        public List<Matricula> Matriculas { get; set; } = new List<Matricula>();
-
     }
 }

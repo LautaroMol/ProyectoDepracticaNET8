@@ -86,10 +86,10 @@
 
         if (state == "Deleted!")
         {
-            Console.WriteLine("camino de borrar");
-            Console.WriteLine($"{state}");
-        }else{ Console.WriteLine("se cancelo"); 
-            Console.WriteLine($"{state}");
+            var resp =await http.Delete($"api/TDocumentos/{entity.Id}");
+            await Leer();
+        }else{
+            return;
         }
     }
 

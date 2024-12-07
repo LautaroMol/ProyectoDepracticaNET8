@@ -42,7 +42,12 @@ namespace ProyectoDepractica.Server.Controllers
         [HttpGet("GetByCod/{cod}")]
         public async Task<ActionResult<TDocumento>> GetByCod(string cod)
         {
-            return await _repositorio.SelectByCod(cod);
+            TDocumento? entity = await _repositorio.SelectByCod(cod);
+            if(entity == null)
+            {
+                return NotFound();
+            }
+            return entity;
         }
         [HttpPost]
         public async Task<ActionResult<int>> Post(TDocumento entidad)

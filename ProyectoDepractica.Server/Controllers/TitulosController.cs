@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProyectoDePractica.BD.Data.Entity;
-using ProyectoDePractica.BD.Data;
-using Microsoft.EntityFrameworkCore;
 using ProyectoDePractica.Shared.DTOs;
 using AutoMapper;
 using ProyectoDepractica.Server.Repositorio;
@@ -56,17 +54,43 @@ namespace ProyectoDepractica.Server.Controllers
             }
         }
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(int id, [FromBody] Titulo entidad)
+        public async Task<ActionResult> Put(int id, [FromBody] TituloDTO entidadDTO)
         {
             try
             {
-                if (id != entidad.Id)
+                var enc = await _repositorio.SelectById(id);
+                if (enc == null)
                 {
-                    return BadRequest("Datos incorrectos (id no concordante)");
+                    return BadRequest("Datos incorrectos (id no encontrado)");
                 }
-                var enc = await _repositorio.Update(id, entidad);
+                Titulo entity = mapper.Map<Titulo>(entidadDTO);
+                entity.Id = id;
+                var succesfull = await _repositorio.Update(id, entity);
 
-                if (!enc)
+                if (!succesfull)
+                {
+                    return BadRequest("No se pudo actualizar");
+                }
+
+                return Ok();
+            }
+
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+        [HttpPut]
+        public async Task<ActionResult> AddProfesion(int id)
+        {
+            try
+            {
+                var enc = await _repositorio.SelectById(id);
+                if (enc == null)
+                {
+                    return BadRequest("Datos incorrectos (id no encontrado)");
+                }
+
+                var succesfull = await _repositorio.Update(id, enc);
+
+                if (!succesfull)
                 {
                     return BadRequest("No se pudo actualizar");
                 }

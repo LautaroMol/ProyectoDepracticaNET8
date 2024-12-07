@@ -60,6 +60,12 @@ namespace ProyectoDePractica.Client.Servicios
             else return new HttpResponse<object>(default, true, response);
         }
 
+        public async Task<HttpResponse<object>> Delete(string url)
+        {
+            var response = await _http.DeleteAsync(url);
+            return new HttpResponse<object>(null,!response.IsSuccessStatusCode,response);
+        }
+
         private async Task<T?> Deserialize<T>(HttpResponseMessage response)
         {
             var responseSTR = await response.Content.ReadAsStringAsync();
