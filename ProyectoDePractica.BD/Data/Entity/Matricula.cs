@@ -15,7 +15,7 @@ namespace ProyectoDePractica.BD.Data.Entity
         public int ProfesionId { get; set; }
         public Profesion Profesion { get; set; }
 
-        [Required(ErrorMessage = "L Especialidad es obligatoria.")]
+        [Required(ErrorMessage = "La Especialidad es obligatoria.")]
         public int EspecialidadId { get; set; }
         public Especialidad Especialidad { get; set; }
 

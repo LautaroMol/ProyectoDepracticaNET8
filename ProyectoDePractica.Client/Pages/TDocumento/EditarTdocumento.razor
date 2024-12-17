@@ -21,6 +21,7 @@
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">Cancel</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -52,7 +53,7 @@
     bool success;
     string msg = "";
     bool flag;
-    
+
 
     private TDocumento tdocumento = new TDocumento();
 
@@ -98,9 +99,9 @@
         }
 
     }
-    private Task Cancelar()
+    private async Task Cancelar()
     {
-        throw new NotImplementedException();
+        navigationManager.NavigateTo("/TDocumentos");
     }
 
 }

@@ -1,0 +1,116 @@
+﻿@page "/Personas"
+@inject HttpClient httpClient
+@inject IHttpService http
+@using MudBlazor
+
+
+<h3>Lista de personas</h3>
+
+<br />
+<MudButton Variant="Variant.Filled" href="/Personas/Create" >Agregar nueva persona</MudButton>
+<br />
+
+<MudTable Items="@listPersonas" Hover="true" Bordered="true" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Personas</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Numero de documento</MudTh>
+        <MudTh>Nombre</MudTh>
+        <MudTh>Apellido</MudTh>
+        <MudTh>Tipo de documento</MudTh>
+        <MudTh>Actions </MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.NumDoc</MudTd>
+        <MudTd>@context.Nombre</MudTd>
+        <MudTd>@context.Apellido</MudTd>
+        <MudTd>@listaDocumentos.Find(x => x.Id == context.TDocumentoId).Nombre</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"Personas/edit/{context.Id}")">
+                Edit
+            </MudButton>
+        </MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                       @onclick="()=> delete(context)">
+                Borrar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+
+    private string searchString1 = "";
+    List<Persona> listPersonas = new List<Persona>();
+    private Persona selectedItem1 = new Persona();
+    public string Msg = "";
+    List<TDocumento> listaDocumentos = new List<TDocumento>();
+    bool flagTdoc = true;
+
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public EventCallback<string> OnButtonClick { get; set; }
+    public string state = "Message box hasn't been opened yet";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await Leer();
+        await GetDocTypes();
+    }
+
+    private async Task Leer()
+    {
+        var respuesta = await http.Get<List<Persona>>("api/Personas");
+        if (!respuesta.Error)
+        {
+            listPersonas = respuesta.Response;
+        }
+        else
+        {
+            Msg = await respuesta.GetError();
+        }
+    }
+    private async Task GetDocTypes()
+    {
+        var respuesta = await http.Get<List<TDocumento>>("api/TDocumentos");
+        if (!respuesta.Error)
+        {
+            listaDocumentos = respuesta.Response;
+        }
+        else
+        {
+            flagTdoc = false;
+        }
+    }
+
+    private async Task delete(Persona entity)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            $"Warning you gonna delete the following Type of document {entity.Nombre}",
+            "Are you sure you want to delete?",
+            yesText: "Confirm!", cancelText: "Cancel");
+        state = result == null ? "Canceled" : "Deleted!";
+        StateHasChanged();
+        if (OnButtonClick.HasDelegate)
+        {
+            await OnButtonClick.InvokeAsync(state);
+        }
+
+        if (state == "Deleted!")
+        {
+            var resp = await http.Delete($"api/Personas/{entity.Id}");
+            await Leer();
+        }
+        else
+        {
+            return;
+        }
+    }
+}

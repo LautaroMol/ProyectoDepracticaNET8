@@ -22,6 +22,7 @@ builder.Services.AddScoped<ITituloRepositorio, TituloRepositorio>();
 builder.Services.AddScoped<ITDocumentoRepositorio, TDocumentoRepositorio>();
 builder.Services.AddScoped<IEspecialidadRepositorio, EspecialidadRepositorio>();
 builder.Services.AddScoped<IMatriculaRepositorio, MatriculaRepositorio>();
+builder.Services.AddScoped<IPersonaRepositorio, PersonaRepositorio>();
 
 var app = builder.Build();
 

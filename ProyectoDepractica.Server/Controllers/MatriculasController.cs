@@ -50,5 +50,38 @@ namespace ProyectoDepractica.Server.Controllers
                 return BadRequest(ex.InnerException.Message);
             }
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int idMatricula,[FromBody] MatriculaDTO matriculaDTO)
+        {
+            try
+            {
+                var enc = await _context.SelectById(idMatricula);
+                if(enc == null)
+                {
+                    return BadRequest($"no se encontro la matricula de id {idMatricula}");
+                }
+                Matricula entity = _mapper.Map<Matricula>(matriculaDTO);
+                entity.Id = idMatricula;
+                var success = await _context.Update(idMatricula,entity);
+
+                if (!success) return BadRequest("No se pudo actualizar");
+                return Ok(success);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var enc = _context.SelectById(id);
+            if (enc == null) return NotFound($"No pudo encontrarse la especialidad de id {id}");
+
+            if (await _context.Delete(id)) return Ok();
+            return BadRequest("No pudo borrarse");
+        }
     }
 }

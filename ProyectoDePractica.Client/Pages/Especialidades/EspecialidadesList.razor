@@ -1,26 +1,28 @@
-﻿@using System.Net.Http.Json
+﻿@page "/Especialidades"
 @inject HttpClient httpClient
-@page "/TDocumentos"
 @inject IHttpService http
 @using MudBlazor
 
 
-<h3>Lista de tipos de documentos</h3>
-<br/>
-<MudButton Variant="Variant.Filled" href="/TDocumentos/crear">Agregar Tipo de Documento</MudButton>
+<h3>Lista de tipos de especialidades</h3>
+<br />
+<MudButton Variant="Variant.Filled" href="/Especialidades/create">Agregar especialidad</MudButton>
 <br />
 
-<MudTable Items="@listaDocumentos" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
+
+<MudTable Items="@ListEspecialidades" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
     <ToolBarContent>
-        <MudText>Lista de tipos de documentos</MudText>
+        <MudText>Lista de especialidades</MudText>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Codigo</MudTh>
         <MudTh>Nombre</MudTh>
+        <MudTh>Tipo de documento</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Codigo</MudTd>
         <MudTd>@context.Nombre</MudTd>
+        <MudTd>@listaTdocumentos.Find(x => x.Id == context.TDocumentoId).Nombre</MudTd>
         <MudTd>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"TDocumentos/editar/{context.Id}")">
                 Editar
@@ -28,7 +30,7 @@
         </MudTd>
         <MudTd>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
-            @onclick = "()=> delete(context)">
+            @onclick="()=> delete(context)">
                 Borrar
             </MudButton>
         </MudTd>
@@ -39,11 +41,9 @@
 
 </MudTable>
 
-
-
-
 @code {
-    List<TDocumento> listaDocumentos = new List<TDocumento>();
+    List<TDocumento> listaTdocumentos = new List<TDocumento>();
+    List<Especialidad> ListEspecialidades = new List<Especialidad>();
     private bool hover = true;
     private bool bordered = true;
     public string Msg = "";
@@ -51,27 +51,38 @@
     [Inject] private IDialogService DialogService { get; set; }
     [Parameter] public EventCallback<string> OnButtonClick { get; set; }
     private Confirmation confirmation;
-    private TDocumento entityToDelete;
-
-
+    bool flagTdoc = true;
     public string state = "Message box hasn't been opened yet";
 
-
-    protected override async Task OnInitializedAsync(){
+    protected override async Task OnInitializedAsync()
+    {
         await base.OnInitializedAsync();
-        await Leer();
+        await GetEspecialidades();
+        await GetDocTypes();
     }
 
-    private async Task Leer(){
-        var respuesta = await http.Get<List<TDocumento>>("api/TDocumentos");
-        if(!respuesta.Error){
-            listaDocumentos = respuesta.Response;
+    private async Task GetEspecialidades(){
+        var response = await http.Get<List<Especialidad>>("api/Especialidades");
+        if(!response.Error){
+            ListEspecialidades = response.Response;
         }else{
-            Msg = await respuesta.GetError();
+            Msg = await response.GetError();
+        }
+    }
+    private async Task GetDocTypes(){
+        var response = await http.Get<List<TDocumento>>("api/TDocumentos");
+        if (!response.Error)
+        {
+            listaTdocumentos = response.Response;
+        }
+        else
+        {
+            flagTdoc = false;
         }
     }
 
-    private async Task delete(TDocumento entity){
+    private async Task delete(Especialidad entity)
+    {
         bool? result = await DialogService.ShowMessageBox(
             $"Warning you gonna delete the following Type of document {entity.Nombre}",
             "Are you sure you want to delete?",
@@ -85,12 +96,12 @@
 
         if (state == "Deleted!")
         {
-            var resp =await http.Delete($"api/TDocumentos/{entity.Id}");
-            await Leer();
-        }else{
+            var resp = await http.Delete($"api/Personas/{entity.Id}");
+            await GetEspecialidades();
+        }
+        else
+        {
             return;
         }
     }
-
-
 }

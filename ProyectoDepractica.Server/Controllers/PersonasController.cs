@@ -1,58 +1,60 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoDepractica.Server.Repositorio;
-using ProyectoDePractica.BD.Data;
 using ProyectoDePractica.BD.Data.Entity;
 using ProyectoDePractica.Shared.DTOs;
 
 namespace ProyectoDepractica.Server.Controllers
 {
     [ApiController]
-    [Route("api/Especialidades")]
-    public class EspecialidadesController : ControllerBase
+    [Route("api/Personas")]
+    public class PersonasController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IEspecialidadRepositorio _context;
+        private readonly IPersonaRepositorio _context;
 
-        public EspecialidadesController(IMapper mapper, IEspecialidadRepositorio context )
+        public PersonasController(IMapper mapper, IPersonaRepositorio context)
         {
             _mapper = mapper;
             _context = context;
 
         }
+
         [HttpGet]
-        public async Task<ActionResult<List<Especialidad>>> Get()
+        public async Task<ActionResult<List<Persona>>> Get()
         {
             return await _context.Select();
         }
 
-        [HttpGet("/especialidad/{id:int}")]
-        public async Task<ActionResult<Especialidad>> GetById(int id)
+        [HttpGet("/api/Persona/Id/{id:int}")]
+        public async Task<ActionResult<Persona>> GetById(int id)
         {
             return await _context.SelectById(id);
         }
 
-        [HttpGet("/codigo/{cod:int}")]
-        public async Task<ActionResult<Especialidad>> GetByCod(string cod)
+        [HttpGet("/api/Persona/dni/{dni:int}")]
+        public async Task<ActionResult<Persona>> GetByCod(string dni)
         {
-            return await _context.SelectByCod(cod);
+            return await _context.SelectByDni(dni);
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(EspecialidadDTO entityDTO)
+        public async Task<ActionResult<int>> Post(PersonaDTO entityDTO)
         {
             try
             {
-                Especialidad entity = _mapper.Map<Especialidad>(entityDTO);
+                Persona entity = _mapper.Map<Persona>(entityDTO);
 
                 return await _context.Insert(entity);
-            }catch (Exception ex) { 
-                return BadRequest(ex.InnerException.Message); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
             }
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(int id, [FromBody] EspecialidadDTO entityDTO)
+        public async Task<ActionResult> Put(int id, [FromBody] PersonaDTO entityDTO)
         {
             try
             {
@@ -61,7 +63,7 @@ namespace ProyectoDepractica.Server.Controllers
                 {
                     return BadRequest($"Datos incorrectos {id} no encontrado");
                 }
-                Especialidad entity = _mapper.Map<Especialidad>(entityDTO);
+                Persona entity = _mapper.Map<Persona>(entityDTO);
                 entity.Id = id;
                 var succes = await _context.Update(id, entity);
 
@@ -71,23 +73,22 @@ namespace ProyectoDepractica.Server.Controllers
                 }
 
                 return Ok();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
 
-
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
             var enc = await _context.Existe(id);
-            if (!enc) return NotFound($"No pudo encontrarse la especialidad de id {id}");
+            if (!enc) return NotFound($"No pudo encontrarse la Persona de id {id}");
 
             if (await _context.Delete(id)) return Ok();
             return BadRequest("No pudo borrarse");
 
         }
-
     }
 }

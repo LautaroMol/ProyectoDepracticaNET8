@@ -13,6 +13,7 @@ namespace ProyectoDepractica.Server.Util
             CreateMap<ProfesionDTO, Profesion>();
             CreateMap<Matricula, MatriculaDTO>().ReverseMap();
             CreateMap<Especialidad, EspecialidadDTO>().ReverseMap();
+            CreateMap<PersonaDTO, Persona>();
 
         }
     }
