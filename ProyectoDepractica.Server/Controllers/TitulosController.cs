@@ -23,7 +23,7 @@ namespace ProyectoDepractica.Server.Controllers
         {
             return await _repositorio.Select(); 
         }
-        [HttpGet("{id:int}")] // api/Titulos/id
+        [HttpGet("/titulo/{id:int}")] // api/Titulos/id
         public async Task<ActionResult<Titulo>> Get(int id)
         {
             var enc = await _repositorio.SelectById(id);
@@ -66,29 +66,6 @@ namespace ProyectoDepractica.Server.Controllers
                 Titulo entity = mapper.Map<Titulo>(entidadDTO);
                 entity.Id = id;
                 var succesfull = await _repositorio.Update(id, entity);
-
-                if (!succesfull)
-                {
-                    return BadRequest("No se pudo actualizar");
-                }
-
-                return Ok();
-            }
-
-            catch (Exception e) { return BadRequest(e.Message); }
-        }
-        [HttpPut]
-        public async Task<ActionResult> AddProfesion(int id)
-        {
-            try
-            {
-                var enc = await _repositorio.SelectById(id);
-                if (enc == null)
-                {
-                    return BadRequest("Datos incorrectos (id no encontrado)");
-                }
-
-                var succesfull = await _repositorio.Update(id, enc);
 
                 if (!succesfull)
                 {

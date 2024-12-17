@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProyectoDePractica.BD.Data.Entity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace ProyectoDePractica.Shared.DTOs
     {
         [Required(ErrorMessage = "La persona es obligatoria")]
         public int PersonaId { get; set; }
+
         [Required(ErrorMessage = "El TDocumento es obligatorio")]
-        public int TDocumentoId { get; set; }
+        public int TituloId { get; set; }
     }
 }

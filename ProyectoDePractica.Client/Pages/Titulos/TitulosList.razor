@@ -1,0 +1,102 @@
+﻿@page "/Titulos"
+@inject HttpClient httpClient
+@inject IHttpService http
+@using MudBlazor
+@inject ISnackbar Snackbar
+
+<h3>Lista de titulos</h3>
+
+<br />
+<MudButton Variant="Variant.Filled" href="/Titulos/create">Agregar nuevo titulo</MudButton>
+<br />
+
+<MudTable Items="@ListTitulos" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
+    <ToolBarContent>
+        <MudText>Lista de titulos</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Codigo</MudTh>
+        <MudTh>Nombre</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Codigo</MudTd>
+        <MudTd>@context.Nombre</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"Titulos/edit/{context.Id}")">
+                Editar
+            </MudButton>
+        </MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
+            @onclick="()=> delete(context)">
+                Borrar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+
+</MudTable>
+
+@code {
+    List<Titulo> ListTitulos = new List<Titulo>();
+    private bool hover = true;
+    private bool bordered = true;
+    public string Msg = "";
+
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public EventCallback<string> OnButtonClick { get; set; }
+    private Confirmation confirmation;
+    private TDocumento entityToDelete;
+
+
+
+    public string state = "Message box hasn't been opened yet";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetList();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+
+
+    }
+
+    public async Task GetList(){
+        var response = await http.Get<List<Titulo>>("api/titulos");
+        if (!response.Error){
+            ListTitulos = response.Response;
+        }else{
+            Msg = await response.GetError();
+        }
+    }
+
+    private async Task delete(Titulo entity)
+    {
+        
+
+        bool? result = await DialogService.ShowMessageBox(
+            $"Warning you gonna delete the following Type of document {entity.Nombre}",
+            "Are you sure you want to delete?",
+            yesText: "Confirm!", cancelText: "Cancel");
+
+        state = result == null ? "Canceled" : "Deleted!";
+        
+        if (result == true){
+                var resp = await http.Delete($"api/Titulos/{entity.Id}");
+                if (!resp.Error)
+                {
+                    Snackbar.Add("Título eliminado correctamente.", Severity.Success);
+                    await GetList();
+                }
+                else
+                {
+                    var errorMsg = await resp.GetError();
+                    Snackbar.Add("No se puede eliminar el título porque existen especialidades asociadas. Elimine primero las especialidades.", Severity.Error);
+                }
+            }
+        }
+
+}

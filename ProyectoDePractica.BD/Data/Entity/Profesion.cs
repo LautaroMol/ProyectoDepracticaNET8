@@ -13,7 +13,7 @@ namespace ProyectoDePractica.BD.Data.Entity
         public int PersonaId {  get; set; }
         public Persona Persona { get; set; }
         [Required(ErrorMessage = "El TDocumento es obligatorio")]
-        public int TDocumentoId { get; set; }
-        public TDocumento TDocumento { get; set; }
+        public int TituloId { get; set; }
+        public Titulo Titulo { get; set; }
     }
 }

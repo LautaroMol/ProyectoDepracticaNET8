@@ -13,29 +13,29 @@
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudNumericField Label="document of the Type person" HelperText="Max 10 numbers"
+                    <MudNumericField Label="code of the titulo" HelperText="Max 4 numbers"
                                      @bind-Value="@entity.Codigo" For="@(()=>entity.Codigo)" MaxLength="4">
                     </MudNumericField>
                     <MudTextField Label="first name of the especialidad" HelperText="Max 100 characters"
                                   @bind-Value="@entity.Nombre" MaxLength="100">
                     </MudTextField>
-                    <MudMenu Label="Seleccionar tipo de documento">
+                    <MudMenu Label="Seleccionar el titulo para la especialidad">
 
-                        @if (@flagTdoc == false)
+                        @if (@flagTitulo == false)
                         {
                             <MudMenuItem>@MsgTDoc</MudMenuItem>
                         }
                         else
                         {
-                            @foreach (TDocumento tdoc in listaDocumentos)
+                            @foreach (Titulo tdoc in listaTitulos)
                             {
-                                <MudMenuItem onclick="()=> SelectDocument(tdoc.Id, tdoc.Nombre)">@tdoc.Nombre</MudMenuItem>
+                                <MudMenuItem onclick="()=> SelectTitulo(tdoc.Id, tdoc.Nombre)">@tdoc.Nombre</MudMenuItem>
                             }
                         }
                     </MudMenu>
-                    @if (selectedTdoc != "")
+                    @if (selectedTitulo != "")
                     {
-                        <p>Your selection: @selectedTdoc</p>
+                        <p>Your selection: @selectedTitulo</p>
                     }
                 </MudCardContent>
                 <MudCardActions>
@@ -73,15 +73,15 @@
     string msg = "";
     bool flag;
     public string MsgTDoc = "";
-    bool flagTdoc = true;
-    string selectedTdoc = "";
-    List<TDocumento> listaDocumentos = new List<TDocumento>();
+    bool flagTitulo = true;
+    string selectedTitulo = "";
+    List<Titulo> listaTitulos = new List<Titulo>();
 
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await GetDocTypes();
+        await GetTitulos();
     }
     private async Task Grabar()
     {
@@ -110,22 +110,22 @@
         }
     }
 
-    private async Task GetDocTypes()
+    private async Task GetTitulos()
     {
-        var respuesta = await http.Get<List<TDocumento>>("api/TDocumentos");
+        var respuesta = await http.Get<List<Titulo>>("api/Titulos");
         if (!respuesta.Error)
         {
-            listaDocumentos = respuesta.Response;
+            listaTitulos = respuesta.Response;
         }
         else
         {
             MsgTDoc = "Sin documentos cargados";
-            flagTdoc = false;
+            flagTitulo = false;
         }
     }
-    private void SelectDocument(int id, string nombre)
+    private void SelectTitulo(int id, string nombre)
     {
-        entity.TDocumentoId = id;
-        selectedTdoc = nombre;
+        entity.TituloId = id;
+        selectedTitulo = nombre;
     }
 }

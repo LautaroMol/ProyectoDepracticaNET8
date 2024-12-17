@@ -22,7 +22,7 @@
     <RowTemplate>
         <MudTd>@context.Codigo</MudTd>
         <MudTd>@context.Nombre</MudTd>
-        <MudTd>@listaTdocumentos.Find(x => x.Id == context.TDocumentoId).Nombre</MudTd>
+        <MudTd>@listTitulos.Find(x => x.Id == context.TituloId).Nombre</MudTd>
         <MudTd>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"TDocumentos/editar/{context.Id}")">
                 Editar
@@ -42,7 +42,7 @@
 </MudTable>
 
 @code {
-    List<TDocumento> listaTdocumentos = new List<TDocumento>();
+    List<Titulo> listTitulos = new List<Titulo>();
     List<Especialidad> ListEspecialidades = new List<Especialidad>();
     private bool hover = true;
     private bool bordered = true;
@@ -58,7 +58,7 @@
     {
         await base.OnInitializedAsync();
         await GetEspecialidades();
-        await GetDocTypes();
+        await GetTitulos();
     }
 
     private async Task GetEspecialidades(){
@@ -69,11 +69,11 @@
             Msg = await response.GetError();
         }
     }
-    private async Task GetDocTypes(){
-        var response = await http.Get<List<TDocumento>>("api/TDocumentos");
+    private async Task  GetTitulos(){
+        var response = await http.Get<List<Titulo>>("api/Titulos");
         if (!response.Error)
         {
-            listaTdocumentos = response.Response;
+            listTitulos = response.Response;
         }
         else
         {
@@ -96,7 +96,7 @@
 
         if (state == "Deleted!")
         {
-            var resp = await http.Delete($"api/Personas/{entity.Id}");
+            var resp = await http.Delete($"api/Especialidades/{entity.Id}");
             await GetEspecialidades();
         }
         else

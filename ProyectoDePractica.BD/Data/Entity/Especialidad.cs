@@ -19,8 +19,8 @@ namespace ProyectoDePractica.BD.Data.Entity
         [Required(ErrorMessage = "El nombre de la especialidad es obligatorio.")]
         [MaxLength(100, ErrorMessage = "Máximo número de caracteres {1}.")]
         public string Nombre { get; set; }
-        public int TDocumentoId { get; set; }
-        public TDocumento TDocumento { get; set; }
+        public int TituloId { get; set; }
+        public Titulo Titulo { get; set; }
 
         public List<Matricula> Matriculas { get; set; } = new List<Matricula>();
 

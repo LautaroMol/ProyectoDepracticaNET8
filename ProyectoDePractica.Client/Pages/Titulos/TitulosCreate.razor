@@ -1,20 +1,22 @@
-﻿@page "/TDocumentos/crear"
+﻿@page "/Titulos/create"
+@inject HttpClient httpClient
 @inject IHttpService http
 @inject NavigationManager navigationManager
 
 
-<h1>Crear tipo de documento</h1>
-<EditForm Model="@tdocumento" OnValidSubmit="Grabar">
+<h3>Nuevo titulo</h3>
+
+<EditForm Model="@entity" OnValidSubmit="Grabar">
     <DataAnnotationsValidator />
     <MudGrid>
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudTextField Label="Code of the Type of document" HelperText="Max 4 characters"
-                    @bind-Value="@tdocumento.Codigo" For="@(()=>tdocumento.Codigo)" MaxLength="4">
+                    <MudTextField Label="first name of the type of persona" HelperText="Max 4 characters"
+                                  @bind-Value="@entity.Codigo" MaxLength="4">
                     </MudTextField>
-                    <MudTextField Label="Name of the type of document" HelperText="Max 150 characters"
-                    @bind-Value="@tdocumento.Nombre" MaxLength="150">
+                    <MudTextField Label="Last name of the type of persona" HelperText="Max 100 characters"
+                                  @bind-Value="@entity.Nombre" MaxLength="100">
                     </MudTextField>
                 </MudCardContent>
                 <MudCardActions>
@@ -48,20 +50,22 @@
 </EditForm>
 
 @code {
+    private Titulo entity = new Titulo();
     bool success;
     string msg = "";
     bool flag;
-    private TDocumento tdocumento = new TDocumento();
+    
     private async Task Grabar()
     {
         flag = true;
-        var resp = await http.Get<List<TDocumento>>("api/TDocumentos");
+        var resp = await http.Get<List<Titulo>>("api/Titulos");
         var list = resp.Response;
 
-        foreach(TDocumento doc in list ){
-            if (doc.Codigo == tdocumento.Codigo)
+        foreach (Titulo ent in list)
+        {
+            if (ent.Codigo == entity.Codigo)
             {
-                msg = $"El codigo {doc.Codigo} ya esta siendo usado";
+                msg = $"El codigo {ent.Codigo} ya esta siendo usado en el sistema";
                 flag = false;
                 return;
             }
@@ -69,14 +73,13 @@
 
         if (flag)
         {
-            var httpresponse = await http.Post<TDocumento>("api/TDocumentos", tdocumento);
+            var httpresponse = await http.Post<Titulo>("api/Titulos", entity);
             if (httpresponse.Error)
             {
                 var body = httpresponse.HttpResponseMessage;
             }
-            navigationManager.NavigateTo("/TDocumentos");
+            navigationManager.NavigateTo("/Titulos");
         }
-
     }
     private void Cancelar()
     {
