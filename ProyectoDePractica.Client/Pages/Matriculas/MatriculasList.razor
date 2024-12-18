@@ -1,0 +1,104 @@
+﻿@page "/Matriculas"
+@inject HttpClient httpClient
+@inject IHttpService http
+@using MudBlazor
+@inject ISnackbar Snackbar
+
+
+<h3>Lista de matriculas y profesionales</h3>
+
+<br />
+<MudButton Variant="Variant.Filled" href="/Matriculas/create">Crear nueva matricula</MudButton>
+<br />
+
+<MudTable Items="@ListMatriculas" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
+    <ToolBarContent>
+        <MudText>Lista de matriculas</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Numero de matricula</MudTh>
+        <MudTh>Profesion </MudTh>
+        <MudTh>Especialidad de la matricula</MudTh>
+        <MudTh>Acciones</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Numero</MudTd>
+        <MudTd>5</MudTd>
+        <MudTd>5</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"Matriculas/edit/{context.Id}")">
+                Editar
+            </MudButton>
+        </MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                       @onclick="()=> delete(context)">
+                Borrar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+
+</MudTable>
+
+@code {
+    List<Matricula> ListMatriculas = new List<Matricula>();
+    private bool hover = true;
+    private bool bordered = true;
+    public string Msg = "";
+
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public EventCallback<string> OnButtonClick { get; set; }
+    private Confirmation confirmation;
+    private TDocumento entityToDelete;
+    public string state = "Message box hasn't been opened yet";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetList();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+    }
+    public async Task GetList()
+    {
+        var response = await http.Get<List<Matricula>>("api/Matriculas");
+        if (!response.Error)
+        {
+            ListMatriculas = response.Response;
+        }
+        else
+        {
+            Msg = await response.GetError();
+        }
+    }
+
+    private async Task delete(Matricula entity)
+    {
+
+
+        bool? result = await DialogService.ShowMessageBox(
+            $"Warning you gonna delete the following Type of document {entity.Numero}",
+            "Are you sure you want to delete?",
+            yesText: "Confirm!", cancelText: "Cancel");
+
+        state = result == null ? "Canceled" : "Deleted!";
+
+        if (result == true)
+        {
+            var resp = await http.Delete($"api/Matriculas/{entity.Id}");
+            if (!resp.Error)
+            {
+                Snackbar.Add("Matricula eliminada correctamente.", Severity.Success);
+                await GetList();
+            }
+            else
+            {
+                var errorMsg = await resp.GetError();
+                Snackbar.Add("No se pudo eliminar la matricula, asegurese que no este asignada una profesion", Severity.Error);
+            }
+        }
+    }
+}

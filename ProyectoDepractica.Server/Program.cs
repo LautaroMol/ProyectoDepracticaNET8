@@ -23,6 +23,7 @@ builder.Services.AddScoped<ITDocumentoRepositorio, TDocumentoRepositorio>();
 builder.Services.AddScoped<IEspecialidadRepositorio, EspecialidadRepositorio>();
 builder.Services.AddScoped<IMatriculaRepositorio, MatriculaRepositorio>();
 builder.Services.AddScoped<IPersonaRepositorio, PersonaRepositorio>();
+builder.Services.AddScoped<IProfesionRepositorio, ProfesionRepositorio>();
 
 var app = builder.Build();
 

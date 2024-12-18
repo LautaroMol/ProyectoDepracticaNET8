@@ -1,0 +1,112 @@
+﻿@page "/Profesiones"
+@inject HttpClient httpClient
+@inject IHttpService http
+@using MudBlazor
+@inject ISnackbar Snackbar
+
+
+<h3>Lista de profesiones</h3>
+
+<br />
+<MudButton Variant="Variant.Filled" href="/Profesiones/create">Agregar nueva profesion</MudButton>
+<br />
+
+<MudTable Items="@ListProfesiones" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
+    <ToolBarContent>
+        <MudText>Lista de profesionales y su titulo</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Profesional</MudTh>
+        <MudTh>titulo</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@ListPersonas.Find(x => x.Id == context.PersonaId).Nombre</MudTd>
+        <MudTd>@ListTitulos.Find(x => x.Id == context.TituloId).Nombre</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"Profesion/edit/{context.Id}")">
+                Editar
+            </MudButton>
+        </MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
+            @onclick="()=> delete(context)">
+                Borrar
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+
+</MudTable>
+
+@code {
+    List<Profesion> ListProfesiones = new List<Profesion>();
+    List<Persona> ListPersonas = new List<Persona>();
+    List<Titulo> ListTitulos = new List<Titulo>();
+    private bool hover = true;
+    private bool bordered = true;
+    public string Msg = "";
+
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public EventCallback<string> OnButtonClick { get; set; }
+    private Confirmation confirmation;
+
+
+
+    public string state = "Message box hasn't been opened yet";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetList();
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+
+    }
+
+    public async Task GetList()
+    {
+        var response = await http.Get<List<Profesion>>("api/Profesiones");
+        var respPersona = await http.Get<List<Persona>>("api/Personas");
+        var respTitulo = await http.Get<List<Titulo>>("api/Titulos");
+        if (!response.Error)
+        {
+            ListProfesiones = response.Response;
+            ListPersonas = respPersona.Response;
+            ListTitulos = respTitulo.Response;
+        }
+        else
+        {
+            Msg = await response.GetError();
+        }
+    }
+
+    private async Task delete(Profesion entity)
+    {
+
+
+        bool? result = await DialogService.ShowMessageBox(
+            $"Warning you gonna delete the following number of profesion: {entity.Id}",
+            "Are you sure you want to delete?",
+            yesText: "Confirm!", cancelText: "Cancel");
+
+        state = result == null ? "Canceled" : "Deleted!";
+
+        if (result == true)
+        {
+            var resp = await http.Delete($"api/Profesiones/{entity.Id}");
+            if (!resp.Error)
+            {
+                Snackbar.Add("La profesion fue borrada correctamente.", Severity.Success);
+                await GetList();
+            }
+            else
+            {
+                var errorMsg = await resp.GetError();
+                Snackbar.Add("No se puede eliminar la profesion por estar cargada en una matricula.", Severity.Error);
+            }
+        }
+    }
+
+}

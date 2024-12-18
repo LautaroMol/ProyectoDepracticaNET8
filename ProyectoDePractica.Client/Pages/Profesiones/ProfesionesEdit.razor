@@ -1,0 +1,159 @@
+﻿@page "/Profesion/edit/{ProfesionId:int}"
+@inject IHttpService http
+@inject NavigationManager navigationManager
+
+
+<h3>Editar Profesion numero @ProfesionId</h3>
+
+<EditForm Model="@entity" OnValidSubmit="Grabar">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudMenu Label="Select profesional">
+
+                        @if (@flagTdoc == false)
+                        {
+                            <MudMenuItem>@MsgData</MudMenuItem>
+                        }
+                        else
+                        {
+                            @foreach (Persona per in ListPersonas)
+                            {
+                                <MudMenuItem onclick="()=> SelectPersona(per.Id, per.Nombre)">@per.Nombre</MudMenuItem>
+                            }
+                        }
+                    </MudMenu>
+                    @if (SelectedPersona != "")
+                    {
+                        <p>Your selection: @SelectedPersona</p>
+                    }
+                    <MudMenu Label="Select Titulo ">
+
+                        @if (@flagTdoc == false)
+                        {
+                            <MudMenuItem>@MsgData</MudMenuItem>
+                        }
+                        else
+                        {
+                            @foreach (Titulo titulo in ListTitulos)
+                            {
+                                <MudMenuItem onclick="()=> SelectTitulo(titulo.Id, titulo.Nombre)">@titulo.Nombre</MudMenuItem>
+                            }
+                        }
+                    </MudMenu>
+                    @if (SelectedTitulo != "")
+                    {
+                        {
+                            <p>Your selection: @SelectedTitulo</p>
+                        }
+                    }
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">Cancel</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Validations</MudText>
+                @if (success)
+                {
+                    <MudText Color="Color.Success">Success</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                }
+                <MudText Typo="Typo.body2" Align="Align.Center">
+                    Valores previos:
+
+                    @MsgData
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    [Parameter] public int ProfesionId { get; set; }
+    private Profesion entity = new Profesion();
+    bool success;
+    string msg = "";
+    bool flag;
+    public string MsgData = "";
+    bool flagTdoc = true;
+    string SelectedTitulo = "";
+    string SelectedPersona = "";
+    List<Persona> ListPersonas = new List<Persona>();
+    List<Titulo> ListTitulos = new List<Titulo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetData();
+        await Show();
+    }
+
+    private async Task Grabar()
+    {
+        var resp = await http.Get<List<Profesion>>("api/Profesiones");
+        var list = resp.Response;
+
+        var httpresponse = await http.Put<Profesion>($"api/Profesiones/{ProfesionId}", entity);
+        if (httpresponse.Error)
+        {
+            var body = httpresponse.HttpResponseMessage;
+        }
+        navigationManager.NavigateTo("/Profesiones");
+    }
+
+    private async Task GetData()
+    {
+        var respPersona = await http.Get<List<Persona>>("api/Personas");
+        var respTitulo = await http.Get<List<Titulo>>("api/Titulos");
+        if (!respPersona.Error || !respTitulo.Error)
+        {
+            ListPersonas = respPersona.Response;
+            ListTitulos = respTitulo.Response;
+            
+        }
+        else
+        {
+            MsgData = "Revise si cargo profesionales y titulos";
+            flagTdoc = false;
+        }
+    }
+    private void SelectPersona(int id, string nombre)
+    {
+        entity.PersonaId = id;
+        SelectedPersona = nombre;
+    }
+    private void SelectTitulo(int id, string nombre)
+    {
+        entity.TituloId = id;
+        SelectedTitulo = nombre;
+    }
+    public async Task Show()
+    {
+        var prof = await http.Get<Profesion>($"/api/Profesion/Id/{ProfesionId}");
+        if (prof != null && !prof.Error)
+        {
+            entity = prof.Response;
+            MsgData = "Profesional: " + ListPersonas.Find(x => x.Id == entity.PersonaId).Nombre + " Titulo: "
+            + ListTitulos.Find(x => x.Id == entity.TituloId).Nombre;
+        }
+        else
+        {
+            msg = "Error al traer datos";
+        }
+    }
+    private void Cancelar()
+    {
+        navigationManager.NavigateTo("/Profesiones");
+    }
+}

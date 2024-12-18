@@ -1,6 +1,8 @@
-﻿namespace ProyectoDepractica.Server.Repositorio
+﻿using ProyectoDePractica.BD.Data.Entity;
+
+namespace ProyectoDepractica.Server.Repositorio
 {
-    public interface IProfesionRepositorio
+    public interface IProfesionRepositorio : IRepositorio<Profesion>
     {
     }
 }
