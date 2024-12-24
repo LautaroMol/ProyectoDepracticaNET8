@@ -8,7 +8,7 @@
 <h3>Lista de matriculas y profesionales</h3>
 
 <br />
-<MudButton Variant="Variant.Filled" href="/Matriculas/create">Crear nueva matricula</MudButton>
+<MudButton Variant="Variant.Filled" href="/Matricula/create">Crear nueva matricula</MudButton>
 <br />
 
 <MudTable Items="@ListMatriculas" Hover="@hover" Bordered="@bordered" class="mat-elevation-z">
@@ -17,22 +17,22 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Numero de matricula</MudTh>
-        <MudTh>Profesion </MudTh>
-        <MudTh>Especialidad de la matricula</MudTh>
+        <MudTh>Numero de profesion </MudTh>
+        <MudTh>Codigo de la especialidad de la matricula</MudTh>
         <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Numero</MudTd>
-        <MudTd>5</MudTd>
-        <MudTd>5</MudTd>
+        <MudTd>@ListProfesiones.Find(x => x.Id == context.ProfesionId).Id</MudTd>
+        <MudTd>@ListEspecialidad.Find(x => x.Id == context.EspecialidadId).Codigo</MudTd>
         <MudTd>
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"Matriculas/edit/{context.Id}")">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"Matricula/Edit/{context.Id}")">
                 Editar
             </MudButton>
         </MudTd>
         <MudTd>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
-                       @onclick="()=> delete(context)">
+            @onclick="()=> delete(context)">
                 Borrar
             </MudButton>
         </MudTd>
@@ -45,6 +45,8 @@
 
 @code {
     List<Matricula> ListMatriculas = new List<Matricula>();
+    List<Profesion> ListProfesiones = new List<Profesion>();
+    List<Especialidad> ListEspecialidad = new List<Especialidad>();
     private bool hover = true;
     private bool bordered = true;
     public string Msg = "";
@@ -65,9 +67,13 @@
     public async Task GetList()
     {
         var response = await http.Get<List<Matricula>>("api/Matriculas");
+        var responseProfesiones = await http.Get<List<Profesion>>("api/Profesiones");
+        var responseEsp = await http.Get<List<Especialidad>> ("api/Especialidades");
         if (!response.Error)
         {
             ListMatriculas = response.Response;
+            ListProfesiones = responseProfesiones.Response;
+            ListEspecialidad = responseEsp.Response;
         }
         else
         {
@@ -97,7 +103,7 @@
             else
             {
                 var errorMsg = await resp.GetError();
-                Snackbar.Add("No se pudo eliminar la matricula, asegurese que no este asignada una profesion", Severity.Error);
+                Snackbar.Add("No se pudo eliminar la matricula", Severity.Error);
             }
         }
     }

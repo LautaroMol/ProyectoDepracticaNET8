@@ -1,0 +1,130 @@
+﻿@page "/Matricula/Create"
+@inject IHttpService http
+@inject NavigationManager navigationManager
+@using MudBlazor
+
+<EditForm Model="@entity" OnValidSubmit="Grabar">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudNumericField Label="number of the Matricula" HelperText="Max 20 numbers"
+                                     @bind-Value="@entity.Numero" For="@(()=>entity.Numero)" MaxLength="10">
+                    </MudNumericField>
+
+                    <MudSelect Label="Select Profesion" @bind-Value="entity.ProfesionId" T="int">
+    @if (ListProfesiones.Any())
+    {
+        @foreach (var prof in ListProfesiones)
+        {
+            <MudSelectItem Value="@prof.Id">@prof.Id</MudSelectItem>
+        }
+    }
+</MudSelect>
+<MudSelect Label="Select Especialidad" @bind-Value="entity.EspecialidadId" T="int">
+    @if (ListEspecialidad.Any())
+    {
+        @foreach (var esp in ListEspecialidad)
+        {
+            <MudSelectItem Value="@esp.Id">@esp.Id</MudSelectItem>
+        }
+    }
+</MudSelect>
+        </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">Cancel</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Validations</MudText>
+                @if (success)
+                {
+                    <MudText Color="Color.Success">Success</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Error info:
+                @msg
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+@code {
+    private Matricula entity = new Matricula();
+    List<Profesion> ListProfesiones = new List<Profesion>();
+    List<Especialidad> ListEspecialidad = new List<Especialidad>();
+    bool success;
+    string msg = "";
+    bool flag;
+    public string MsgTDoc = "";
+    bool flagTdoc = true;
+    int selectedProf = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetLists();
+    }
+
+    private async Task GetLists(){
+        var responseProfesiones = await http.Get<List<Profesion>>("api/Profesiones");
+        var responseEsp = await http.Get<List<Especialidad>>("api/Especialidades");
+        if (!responseProfesiones.Error)
+        {
+            ListProfesiones = responseProfesiones.Response;
+            ListEspecialidad = responseEsp.Response;
+        }
+        else
+        {
+            msg = await responseProfesiones.GetError();
+        }
+    }
+    private async Task Grabar()
+    {
+        flag = true;
+        var resp = await http.Get<List<Matricula>>("api/Matriculas");
+        var list = resp.Response;
+
+        foreach (Matricula mat in list)
+        {
+            if (mat.Numero == entity.Numero)
+            {
+                msg = $"El numero de matricula {entity.Numero} ya esta siendo usado";
+                flag = false;
+                return;
+            }
+        }
+
+        if (flag)
+        {
+            var httpresponse = await http.Post<Matricula>("api/Matriculas", entity);
+            if (httpresponse.Error)
+            {
+                var body = httpresponse.HttpResponseMessage;
+            }
+            navigationManager.NavigateTo("/Matriculas");
+        }
+    }
+    private void SelectDocument(int id)
+    {
+        entity.EspecialidadId = id;
+        selectedProf = id;
+    }
+
+    private void Cancelar()
+    {
+        navigationManager.NavigateTo("/Matriculas");
+    }
+}

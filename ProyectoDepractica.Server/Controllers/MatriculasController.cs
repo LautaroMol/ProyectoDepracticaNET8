@@ -52,18 +52,18 @@ namespace ProyectoDepractica.Server.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(int idMatricula,[FromBody] MatriculaDTO matriculaDTO)
+        public async Task<ActionResult> Put(int id,[FromBody] MatriculaDTO matriculaDTO)
         {
             try
             {
-                var enc = await _context.SelectById(idMatricula);
+                var enc = await _context.SelectById(id);
                 if(enc == null)
                 {
-                    return BadRequest($"no se encontro la matricula de id {idMatricula}");
+                    return BadRequest($"no se encontro la matricula de id {id} se mando mal el id");
                 }
                 Matricula entity = _mapper.Map<Matricula>(matriculaDTO);
-                entity.Id = idMatricula;
-                var success = await _context.Update(idMatricula,entity);
+                entity.Id = id;
+                var success = await _context.Update(id, entity);
 
                 if (!success) return BadRequest("No se pudo actualizar");
                 return Ok(success);
@@ -74,7 +74,7 @@ namespace ProyectoDepractica.Server.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
             var enc = _context.SelectById(id);
