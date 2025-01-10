@@ -77,7 +77,7 @@ namespace ProyectoDepractica.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var enc = _context.SelectById(id);
+            var enc = await _context.SelectById(id);
             if (enc == null) return NotFound($"No pudo encontrarse la especialidad de id {id}");
 
             if (await _context.Delete(id)) return Ok();

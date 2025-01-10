@@ -1,6 +1,149 @@
-﻿
-<h3>EspecialidadesEdit</h3>
+﻿@page "/Especialidades/edit/{EspecialidadId:int}"
+@inject HttpClient httpClient
+@inject IHttpService http
+@inject NavigationManager navigationManager
+@using MudBlazor
+
+<h2>Editando especialidad</h2>
+<EditForm Model="@entity" OnValidSubmit="Grabar">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudNumericField Label="Código del título" HelperText="Máx 4 números"
+                                     @bind-Value="@entity.Codigo" For="@(()=>entity.Codigo)" MaxLength="4">
+                    </MudNumericField>
+                    <MudTextField Label="Nombre de la especialidad" HelperText="Máx 100 caracteres"
+                                  @bind-Value="@entity.Nombre" MaxLength="100">
+                    </MudTextField>
+
+                    <MudSelect Label="Seleccionar el título para la especialidad" @bind-Value="entity.TituloId" T="int">
+                        @if (flagTitulo && listaTitulos.Any())
+                        {
+                            @foreach (var tdoc in listaTitulos)
+                            {
+                                <MudSelectItem Value="@tdoc.Id">@tdoc.Nombre</MudSelectItem>
+                            }
+                        }
+                        else
+                        {
+                            <MudSelectItem Value="0">@MsgTDoc</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(selectedTitulo))
+                    {
+                        <p>Selección actual: @selectedTitulo</p>
+                    }
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Guardar</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">Cancel</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Validaciones</MudText>
+                @if (success)
+                {
+                    <MudText Color="Color.Success">Operación exitosa</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Información del error:
+                @msg
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</EditForm>
 
 @code {
+    [Parameter] public int EspecialidadId { get; set; }
+    private Especialidad entity = new Especialidad();
+    bool success;
+    string msg = "";
+    bool flag;
+    public string MsgTDoc = "No hay títulos cargados";
+    bool flagTitulo = true;
+    string selectedTitulo = "";
+    List<Titulo> listaTitulos = new List<Titulo>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetTitulos();
+        await Show();
+    }
+
+    public async Task Show()
+    {
+        var especialidad = await http.Get<Especialidad>($"/Especialidad/{EspecialidadId}");
+        if (especialidad != null && !especialidad.Error)
+        {
+            entity = especialidad.Response;
+        }
+        else
+        {
+            msg = "Error al traer datos";
+        }
+    }
+
+    private async Task Grabar()
+    {
+        flag = true;
+        var resp = await http.Get<List<Especialidad>>("api/Especialidades");
+        var list = resp.Response;
+
+        foreach (var doc in list)
+        {
+            if (doc.Codigo == entity.Codigo)
+            {
+                msg = $"El código {entity.Codigo} ya está siendo utilizado";
+                flag = false;
+                return;
+            }
+        }
+
+        if (flag)
+        {
+            var httpresponse = await http.Post<Especialidad>("api/Especialidades", entity);
+            if (httpresponse.Error)
+            {
+                var body = httpresponse.HttpResponseMessage;
+                msg = "Error al guardar la especialidad.";
+            }
+            else
+            {
+                navigationManager.NavigateTo("/Especialidades");
+            }
+        }
+    }
+
+    private async Task GetTitulos()
+    {
+        var respuesta = await http.Get<List<Titulo>>("api/Titulos");
+        if (!respuesta.Error)
+        {
+            listaTitulos = respuesta.Response;
+        }
+        else
+        {
+            MsgTDoc = "Sin títulos cargados";
+            flagTitulo = false;
+        }
+    }
+    private void Cancelar()
+    {
+        navigationManager.NavigateTo("/Especialidades");
+    }
 }

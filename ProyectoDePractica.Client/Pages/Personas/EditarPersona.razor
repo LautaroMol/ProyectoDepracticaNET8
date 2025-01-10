@@ -2,8 +2,7 @@
 @inject IHttpService http
 @inject NavigationManager navigationManager
 
-
-<h3>Editar Persona con dni:  </h3>
+<h3>Editar Persona con DNI: </h3>
 
 <EditForm Model="@entity" OnValidSubmit="Grabar">
     <DataAnnotationsValidator />
@@ -11,50 +10,57 @@
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudNumericField Label="document of the Type person" HelperText="Max 10 numbers"
-                    @bind-Value="@entity.NumDoc" For="@(()=>entity.NumDoc)" MaxLength="10">
+                    <MudNumericField Label="Documento" HelperText="Máx. 10 números"
+                                     @bind-Value="@entity.NumDoc" For="@(() => entity.NumDoc)" MaxLength="10">
                     </MudNumericField>
-                    <MudTextField Label="first name of the type of persona" HelperText="Max 70 characters"
-                    @bind-Value="@entity.Nombre" MaxLength="70">
+                    <MudTextField Label="Nombre" HelperText="Máx. 70 caracteres"
+                                  @bind-Value="@entity.Nombre" MaxLength="70">
                     </MudTextField>
-                    <MudTextField Label="Last name of the type of persona" HelperText="Max 70 characters"
-                    @bind-Value="@entity.Apellido" MaxLength="70">
+                    <MudTextField Label="Apellido" HelperText="Máx. 70 caracteres"
+                                  @bind-Value="@entity.Apellido" MaxLength="70">
                     </MudTextField>
-                    <MudMenu Label="Seleccionar tipo de documento">
 
-                        @if (@flagTdoc == false)
-                        {
-                            <MudMenuItem>@MsgTDoc</MudMenuItem>
-                        }
-                        else
-                        {
-                            @foreach (TDocumento tdoc in listaDocumentos)
+                    @if (flagTdoc)
+                    {
+                        <MudSelect Label="Select type of document" @bind-Value="entity.TDocumentoId">
+                            @foreach (var tdoc in listaDocumentos)
                             {
-                                <MudMenuItem onclick="()=> SelectDocument(tdoc.Id, tdoc.Nombre)">@tdoc.Nombre</MudMenuItem>
+                                <MudSelectItem Value="@tdoc.Id" >
+                                    @tdoc.Nombre
+                                </MudSelectItem>
                             }
-                        }
-                    </MudMenu>
+                        </MudSelect>
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Error">Sin documentos cargados</MudText>
+                    }
+
                     @if (selectedTdoc != "")
                     {
-                        <p>Your previous selection: @selectedTdoc</p>
+                        <p>Tu selección previa: @selectedTdoc</p>
                     }
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">Cancel</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">
+                        Guardar
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">
+                        Cancelar
+                    </MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
         <MudItem xs="12" sm="5">
             <MudPaper Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.subtitle2">Validations</MudText>
+                <MudText Typo="Typo.subtitle2">Validaciones</MudText>
                 @if (success)
                 {
-                    <MudText Color="Color.Success">Success</MudText>
+                    <MudText Color="Color.Success">Éxito</MudText>
                 }
                 else
                 {
-                    <MudText Color="@Color.Error">
+                    <MudText Color="Color.Error">
                         <ValidationSummary />
                     </MudText>
                 }
@@ -62,7 +68,7 @@
         </MudItem>
         <MudItem xs="12">
             <MudText Typo="Typo.body2" Align="Align.Center">
-                Error info:
+                Información de error:
                 @msg
             </MudText>
         </MudItem>
@@ -82,10 +88,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-        await Show();
-        await GetDocTypes();
-        selectedTdoc = listaDocumentos.Find(x => x.Id == entity.TDocumentoId).Nombre;
+        try
+        {
+            await Show();
+            await GetDocTypes();
+
+            var documento = listaDocumentos.Find(x => x.Id == entity.TDocumentoId);
+            selectedTdoc = documento != null ? documento.Nombre : "Tipo de documento no encontrado";
+        }
+        catch (Exception ex)
+        {
+            msg = $"Error al inicializar: {ex.Message}";
+        }
     }
 
     private async Task GetDocTypes()
@@ -101,6 +115,7 @@
             flagTdoc = false;
         }
     }
+
     private void SelectDocument(int id, string nombre)
     {
         entity.TDocumentoId = id;
@@ -109,48 +124,65 @@
 
     public async Task Show()
     {
-        var persona = await http.Get<Persona>($"/api/Persona/Id/{PersonaId}");
-        if (persona != null && !persona.Error)
+        try
         {
-            entity = persona.Response;
+            var persona = await http.Get<Persona>($"/api/Persona/Id/{PersonaId}");
+            if (persona != null && !persona.Error)
+            {
+                entity = persona.Response;
+            }
+            else
+            {
+                msg = "Error al traer datos de la persona.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            msg = "Error al traer datos";
+            msg = $"Error al obtener datos: {ex.Message}";
         }
     }
 
     private async Task Grabar()
     {
-
-        flag = true;
-        var resp = await http.Get<List<Persona>>("api/Personas");
-        var list = resp.Response;
-        foreach (Persona ent in list)
+        try
         {
-            if (ent.NumDoc == entity.NumDoc && ent.Id != entity.Id)
+            flag = true;
+
+            // Verificar si el número de documento ya existe
+            var resp = await http.Get<List<Persona>>("api/Personas");
+            var list = resp.Response;
+            foreach (Persona ent in list)
             {
-                msg = $"El numero de documento {ent.NumDoc} ya esta cargado";
-                flag = false;
-                return;
+                if (ent.NumDoc == entity.NumDoc && ent.Id != entity.Id)
+                {
+                    msg = $"El número de documento {ent.NumDoc} ya está cargado.";
+                    flag = false;
+                    return;
+                }
+            }
+
+            if (flag)
+            {
+                var httpresponse = await http.Put<Persona>($"api/Personas/{PersonaId}", entity);
+                if (httpresponse.Error)
+                {
+                    msg = "Error al guardar los cambios en el servidor.";
+                    return;
+                }
+
+                // Redirigir después del éxito
+                success = true;
+                navigationManager.NavigateTo("/Personas");
             }
         }
-
-        if (flag)
+        catch (Exception ex)
         {
-            var httpresponse = await http.Put<Persona>($"api/Personas/{PersonaId}", entity);
-            if (httpresponse.Error)
-            {
-                var body = httpresponse.HttpResponseMessage;
-            }
-            navigationManager.NavigateTo("/Personas");
+            msg = $"Error al guardar: {ex.Message}";
         }
-
     }
 
     private void Cancelar()
     {
         navigationManager.NavigateTo("/Personas");
     }
-
 }

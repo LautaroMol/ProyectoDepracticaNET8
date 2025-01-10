@@ -11,43 +11,42 @@
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudMenu Label="Select profesional">
-
-                        @if (@flagTdoc == false)
+                    <MudSelect Label="Select Profesional" @bind-Value="entity.PersonaId" HelperText="Seleccione un profesional">
+                        @if (!flagTdoc)
                         {
-                            <MudMenuItem>@MsgData</MudMenuItem>
+                            <MudSelectItem Value="-1">@MsgData</MudSelectItem>
                         }
                         else
                         {
-                            @foreach (Persona per in ListPersonas)
+                            @foreach (var per in ListPersonas)
                             {
-                                <MudMenuItem onclick="()=> SelectPersona(per.Id, per.Nombre)">@per.Nombre</MudMenuItem>
+                                <MudSelectItem Value="@per.Id">@per.Nombre</MudSelectItem>
                             }
                         }
-                    </MudMenu>
-                    @if (SelectedPersona != "")
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(SelectedPersona))
                     {
                         <p>Your selection: @SelectedPersona</p>
                     }
-                    <MudMenu Label="Select Titulo ">
 
-                        @if (@flagTdoc == false)
+                    <MudSelect Label="Select Título" @bind-Value="entity.TituloId" HelperText="Seleccione un título">
+                        @if (!flagTdoc)
                         {
-                            <MudMenuItem>@MsgData</MudMenuItem>
+                            <MudSelectItem Value="-1">@MsgData</MudSelectItem>
                         }
                         else
                         {
-                            @foreach (Titulo titulo in ListTitulos)
+                            @foreach (var titulo in ListTitulos)
                             {
-                                <MudMenuItem onclick="()=> SelectTitulo(titulo.Id, titulo.Nombre)">@titulo.Nombre</MudMenuItem>
+                                <MudSelectItem Value="@titulo.Id">@titulo.Nombre</MudSelectItem>
                             }
                         }
-                    </MudMenu>
-                    @if (SelectedTitulo != "")
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(SelectedTitulo))
                     {
-                        {
-                            <p>Your selection: @SelectedTitulo</p>
-                        }
+                        <p>Your selection: @SelectedTitulo</p>
                     }
                 </MudCardContent>
                 <MudCardActions>

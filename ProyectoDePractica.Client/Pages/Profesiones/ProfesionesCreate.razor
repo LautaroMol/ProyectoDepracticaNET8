@@ -4,7 +4,7 @@
 @inject NavigationManager navigationManager
 @using MudBlazor
 
-<h3>Crear Profesion</h3>
+<h3>Crear Profesión</h3>
 
 <EditForm Model="@entity" OnValidSubmit="Grabar">
     <DataAnnotationsValidator />
@@ -12,42 +12,42 @@
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudMenu Label="Select profesional">
-
-                        @if (@flagTdoc == false)
+                    <MudSelect Label="Select Profesional" @bind-Value="entity.PersonaId" HelperText="Seleccione un profesional">
+                        @if (!flagTdoc)
                         {
-                            <MudMenuItem>@MsgData</MudMenuItem>
+                            <MudSelectItem Value="-1">@MsgData</MudSelectItem>
                         }
                         else
                         {
-                            @foreach (Persona per in ListPersonas)
+                            @foreach (var per in ListPersonas)
                             {
-                                <MudMenuItem onclick="()=> SelectPersona(per.Id, per.Nombre)">@per.Nombre</MudMenuItem>
+                                <MudSelectItem Value="@per.Id">@per.Nombre</MudSelectItem>
                             }
                         }
-                    </MudMenu>
-                    @if (SelectedPersona != "")
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(SelectedPersona))
                     {
                         <p>Your selection: @SelectedPersona</p>
                     }
-                    <MudMenu Label="Select Titulo ">
 
-                        @if (@flagTdoc == false)
+                    <MudSelect Label="Select Título" @bind-Value="entity.TituloId" HelperText="Seleccione un título">
+                        @if (!flagTdoc)
                         {
-                            <MudMenuItem>@MsgData</MudMenuItem>
+                            <MudSelectItem Value="-1">@MsgData</MudSelectItem>
                         }
                         else
                         {
-                            @foreach (Titulo titulo in ListTitulos)
+                            @foreach (var titulo in ListTitulos)
                             {
-                                <MudMenuItem onclick="()=> SelectTitulo(titulo.Id, titulo.Nombre)">@titulo.Nombre</MudMenuItem>
+                                <MudSelectItem Value="@titulo.Id">@titulo.Nombre</MudSelectItem>
                             }
                         }
-                    </MudMenu>
-                    @if (SelectedTitulo !=""){
-                        {
-                            <p>Your selection: @SelectedTitulo</p>
-                        }
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(SelectedTitulo))
+                    {
+                        <p>Your selection: @SelectedTitulo</p>
                     }
                 </MudCardContent>
                 <MudCardActions>
@@ -115,27 +115,18 @@
     {
         var respPersona = await http.Get<List<Persona>>("api/Personas");
         var respTitulo = await http.Get<List<Titulo>>("api/Titulos");
-        if (!respPersona.Error || !respTitulo.Error)
+        if (!respPersona.Error && !respTitulo.Error)
         {
             ListPersonas = respPersona.Response;
             ListTitulos = respTitulo.Response;
         }
         else
         {
-            MsgData = "Revise si cargo profesionales y titulos";
+            MsgData = "Revise si cargo profesionales y títulos";
             flagTdoc = false;
         }
     }
-    private void SelectPersona(int id, string nombre)
-    {
-        entity.PersonaId = id;
-        SelectedPersona = nombre;
-    }
-    private void SelectTitulo(int id, string nombre)
-    {
-        entity.TituloId = id;
-        SelectedTitulo = nombre;
-    }
+
     private void Cancelar()
     {
         navigationManager.NavigateTo("/Profesiones");

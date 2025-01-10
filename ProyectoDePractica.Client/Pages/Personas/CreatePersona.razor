@@ -3,7 +3,6 @@
 @inject NavigationManager navigationManager
 @using MudBlazor
 
-
 <h1>Nueva Persona</h1>
 
 <EditForm Model="@entity" OnValidSubmit="Grabar">
@@ -12,27 +11,32 @@
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudNumericField Label="document of the Type person" HelperText="Max 10 numbers"
-                    @bind-Value="@entity.NumDoc" For="@(()=>entity.NumDoc)" MaxLength="10">
+                    <MudNumericField Label="Document of the Type Person" HelperText="Max 10 numbers"
+                                     @bind-Value="@entity.NumDoc" For="@(() => entity.NumDoc)" MaxLength="10">
                     </MudNumericField>
-                    <MudTextField Label="first name of the type of persona" HelperText="Max 70 characters"
-                    @bind-Value="@entity.Nombre" MaxLength="70">
+                    <MudTextField Label="First Name of the Type of Persona" HelperText="Max 70 characters"
+                                  @bind-Value="@entity.Nombre" MaxLength="70">
                     </MudTextField>
-                    <MudTextField Label="Last name of the type of persona" HelperText="Max 70 characters"
-                    @bind-Value="@entity.Apellido" MaxLength="70">
+                    <MudTextField Label="Last Name of the Type of Persona" HelperText="Max 70 characters"
+                                  @bind-Value="@entity.Apellido" MaxLength="70">
                     </MudTextField>
-                    <MudMenu Label="Seleccionar tipo de documento">
 
-                        @if (@flagTdoc == false)
+                    <MudSelect T="int" Label="Seleccionar tipo de documento" @bind-Value="entity.TDocumentoId">
+                        @if (!flagTdoc)
                         {
-                            <MudMenuItem>@MsgTDoc</MudMenuItem>
-                        }else{
-                            @foreach (TDocumento tdoc in listaDocumentos){
-                                <MudMenuItem onclick="()=> SelectDocument(tdoc.Id, tdoc.Nombre)">@tdoc.Nombre</MudMenuItem>
+                            <MudSelectItem Value="0">@MsgTDoc</MudSelectItem>
+                        }
+                        else
+                        {
+                            @foreach (var tdoc in listaDocumentos)
+                            {
+                                <MudSelectItem Value="@tdoc.Id">@tdoc.Nombre</MudSelectItem>
                             }
                         }
-                    </MudMenu>
-                    @if (selectedTdoc!=""){
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(selectedTdoc))
+                    {
                         <p>Your selection: @selectedTdoc</p>
                     }
                 </MudCardContent>
@@ -73,15 +77,15 @@
     bool flag;
     public string MsgTDoc = "";
     bool flagTdoc = true;
-    string selectedTdoc ="";
+    string selectedTdoc = "";
     List<TDocumento> listaDocumentos = new List<TDocumento>();
-
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await GetDocTypes();
     }
+
     private async Task Grabar()
     {
         flag = true;
@@ -92,7 +96,7 @@
         {
             if (doc.NumDoc == entity.NumDoc)
             {
-                msg = $"El Dni {doc.NumDoc} ya esta siendo cargado en la base de datos";
+                msg = $"El Dni {doc.NumDoc} ya está siendo cargado en la base de datos";
                 flag = false;
                 return;
             }
@@ -122,14 +126,9 @@
             flagTdoc = false;
         }
     }
-    private void SelectDocument(int id, string nombre)
-    {
-        entity.TDocumentoId = id;
-        selectedTdoc = nombre;
-    }
+
     private void Cancelar()
     {
         navigationManager.NavigateTo("/Personas");
     }
-
 }

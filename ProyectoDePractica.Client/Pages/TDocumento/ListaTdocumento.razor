@@ -3,6 +3,8 @@
 @inject HttpClient httpClient
 @inject IHttpService http
 @using MudBlazor
+@inject ISnackbar Snackbar
+
 
 
 <h3>Lista de tipos de documentos</h3>
@@ -71,26 +73,31 @@
         }
     }
 
-    private async Task delete(TDocumento entity){
+
+    private async Task delete(TDocumento entity)
+    {
+
+
         bool? result = await DialogService.ShowMessageBox(
             $"Warning you gonna delete the following Type of document {entity.Nombre}",
             "Are you sure you want to delete?",
             yesText: "Confirm!", cancelText: "Cancel");
-        state = result == null ? "Canceled" : "Deleted!";
-        StateHasChanged();
-        if (OnButtonClick.HasDelegate)
-        {
-            await OnButtonClick.InvokeAsync(state);
-        }
 
-        if (state == "Deleted!")
+        state = result == null ? "Canceled" : "Deleted!";
+
+        if (result == true)
         {
-            var resp =await http.Delete($"api/TDocumentos/{entity.Id}");
-            await Leer();
-        }else{
-            return;
+            var resp = await http.Delete($"api/TDocumentos/{entity.Id}");
+            if (!resp.Error)
+            {
+                Snackbar.Add("tipo de documento eliminado correctamente.", Severity.Success);
+                await Leer();
+            }
+            else
+            {
+                var errorMsg = await resp.GetError();
+                Snackbar.Add("No se puede eliminar el tipo de documento porque existen personas asociadas. Elimine primero las personas.", Severity.Error);
+            }
         }
     }
-
-
 }

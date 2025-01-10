@@ -2,6 +2,7 @@
 @inject HttpClient httpClient
 @inject IHttpService http
 @using MudBlazor
+@inject ISnackbar Snackbar
 
 
 <h3>Lista de personas</h3>
@@ -92,25 +93,28 @@
 
     private async Task delete(Persona entity)
     {
+
+
         bool? result = await DialogService.ShowMessageBox(
             $"Warning you gonna delete the following Type of document {entity.Nombre}",
             "Are you sure you want to delete?",
             yesText: "Confirm!", cancelText: "Cancel");
-        state = result == null ? "Canceled" : "Deleted!";
-        StateHasChanged();
-        if (OnButtonClick.HasDelegate)
-        {
-            await OnButtonClick.InvokeAsync(state);
-        }
 
-        if (state == "Deleted!")
+        state = result == null ? "Canceled" : "Deleted!";
+
+        if (result == true)
         {
             var resp = await http.Delete($"api/Personas/{entity.Id}");
-            await Leer();
-        }
-        else
-        {
-            return;
+            if (!resp.Error)
+            {
+                Snackbar.Add("Persona eliminada correctamente.", Severity.Success);
+                await Leer();
+            }
+            else
+            {
+                var errorMsg = await resp.GetError();
+                Snackbar.Add("No se puede eliminar la persona porque existen profesiones asociadas. Elimine primero las especialidades.", Severity.Error);
+            }
         }
     }
 }

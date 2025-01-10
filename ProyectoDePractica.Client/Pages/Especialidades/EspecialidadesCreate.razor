@@ -4,8 +4,7 @@
 @inject NavigationManager navigationManager
 @using MudBlazor
 
-
-<h2>Creacion de especialidad</h2>
+<h2>Creación de Especialidad</h2>
 
 <EditForm Model="@entity" OnValidSubmit="Grabar">
     <DataAnnotationsValidator />
@@ -13,42 +12,44 @@
         <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
-                    <MudNumericField Label="code of the titulo" HelperText="Max 4 numbers"
+                    <MudNumericField Label="Código de la especialidad" HelperText="Máx 4 números"
                                      @bind-Value="@entity.Codigo" For="@(()=>entity.Codigo)" MaxLength="4">
                     </MudNumericField>
-                    <MudTextField Label="first name of the especialidad" HelperText="Max 100 characters"
+                    <MudTextField Label="Nombre de la especialidad" HelperText="Máx 100 caracteres"
                                   @bind-Value="@entity.Nombre" MaxLength="100">
                     </MudTextField>
-                    <MudMenu Label="Seleccionar el titulo para la especialidad">
 
-                        @if (@flagTitulo == false)
+                    <MudSelect Label="Seleccionar el título para la especialidad" @bind-Value="entity.TituloId" T="int">
+                        @if (flagTitulo && listaTitulos.Any())
                         {
-                            <MudMenuItem>@MsgTDoc</MudMenuItem>
+                            @foreach (var tdoc in listaTitulos)
+                            {
+                                <MudSelectItem Value="@tdoc.Id">@tdoc.Nombre</MudSelectItem>
+                            }
                         }
                         else
                         {
-                            @foreach (Titulo tdoc in listaTitulos)
-                            {
-                                <MudMenuItem onclick="()=> SelectTitulo(tdoc.Id, tdoc.Nombre)">@tdoc.Nombre</MudMenuItem>
-                            }
+                            <MudSelectItem Value="0">@MsgTDoc</MudSelectItem>
                         }
-                    </MudMenu>
-                    @if (selectedTitulo != "")
+                    </MudSelect>
+
+                    @if (!string.IsNullOrEmpty(selectedTitulo))
                     {
-                        <p>Your selection: @selectedTitulo</p>
+                        <p>Selección actual: @selectedTitulo</p>
                     }
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Guardar</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancelar">Cancel</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
         <MudItem xs="12" sm="5">
             <MudPaper Class="pa-4 mud-height-full">
-                <MudText Typo="Typo.subtitle2">Validations</MudText>
+                <MudText Typo="Typo.subtitle2">Validaciones</MudText>
                 @if (success)
                 {
-                    <MudText Color="Color.Success">Success</MudText>
+                    <MudText Color="Color.Success">Operación exitosa</MudText>
                 }
                 else
                 {
@@ -60,7 +61,7 @@
         </MudItem>
         <MudItem xs="12">
             <MudText Typo="Typo.body2" Align="Align.Center">
-                Error info:
+                Información del error:
                 @msg
             </MudText>
         </MudItem>
@@ -72,28 +73,28 @@
     bool success;
     string msg = "";
     bool flag;
-    public string MsgTDoc = "";
+    public string MsgTDoc = "No hay títulos cargados";
     bool flagTitulo = true;
     string selectedTitulo = "";
     List<Titulo> listaTitulos = new List<Titulo>();
-
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await GetTitulos();
     }
+
     private async Task Grabar()
     {
         flag = true;
         var resp = await http.Get<List<Especialidad>>("api/Especialidades");
         var list = resp.Response;
 
-        foreach (Especialidad doc in list)
+        foreach (var doc in list)
         {
             if (doc.Codigo == entity.Codigo)
             {
-                msg = $"El codigo {entity.Codigo} ya esta siendo utilizado";
+                msg = $"El código {entity.Codigo} ya está siendo utilizado";
                 flag = false;
                 return;
             }
@@ -105,8 +106,12 @@
             if (httpresponse.Error)
             {
                 var body = httpresponse.HttpResponseMessage;
+                msg = "Error al guardar la especialidad.";
             }
-            navigationManager.NavigateTo("/Especialidades");
+            else
+            {
+                navigationManager.NavigateTo("/Especialidades");
+            }
         }
     }
 
@@ -119,13 +124,13 @@
         }
         else
         {
-            MsgTDoc = "Sin documentos cargados";
+            MsgTDoc = "Sin títulos cargados";
             flagTitulo = false;
         }
     }
-    private void SelectTitulo(int id, string nombre)
+    private void Cancelar()
     {
-        entity.TituloId = id;
-        selectedTitulo = nombre;
+        navigationManager.NavigateTo("/Especialidades");
     }
+
 }

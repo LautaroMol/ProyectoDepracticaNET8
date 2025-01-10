@@ -2,7 +2,7 @@
 @inject HttpClient httpClient
 @inject IHttpService http
 @using MudBlazor
-
+@inject ISnackbar Snackbar
 
 <h3>Lista de tipos de especialidades</h3>
 <br />
@@ -24,7 +24,7 @@
         <MudTd>@context.Nombre</MudTd>
         <MudTd>@listTitulos.Find(x => x.Id == context.TituloId).Nombre</MudTd>
         <MudTd>
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"TDocumentos/editar/{context.Id}")">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" HRef="@($"/Especialidades/edit/{context.Id}")">
                 Editar
             </MudButton>
         </MudTd>
@@ -83,25 +83,28 @@
 
     private async Task delete(Especialidad entity)
     {
+
+
         bool? result = await DialogService.ShowMessageBox(
             $"Warning you gonna delete the following Type of document {entity.Nombre}",
             "Are you sure you want to delete?",
             yesText: "Confirm!", cancelText: "Cancel");
-        state = result == null ? "Canceled" : "Deleted!";
-        StateHasChanged();
-        if (OnButtonClick.HasDelegate)
-        {
-            await OnButtonClick.InvokeAsync(state);
-        }
 
-        if (state == "Deleted!")
+        state = result == null ? "Canceled" : "Deleted!";
+
+        if (result == true)
         {
             var resp = await http.Delete($"api/Especialidades/{entity.Id}");
-            await GetEspecialidades();
-        }
-        else
-        {
-            return;
+            if (!resp.Error)
+            {
+                Snackbar.Add("especialidad eliminada correctamente.", Severity.Success);
+                await GetEspecialidades();
+            }
+            else
+            {
+                var errorMsg = await resp.GetError();
+                Snackbar.Add("No se puede eliminar la especialidad porque existen matriculas asociadas. Elimine primero las personas.", Severity.Error);
+            }
         }
     }
 }
